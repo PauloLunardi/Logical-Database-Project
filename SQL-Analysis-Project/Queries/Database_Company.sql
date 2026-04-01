@@ -414,7 +414,6 @@ INSERT INTO company.dept_locations VALUES (9, 'Curitiba');
 -- Departamento 10 (Suporte Tecnico)
 INSERT INTO company.dept_locations VALUES (10, 'Sao Paulo');
 
-
 -- Inserindo dados na tabela Projects
 -- Projetos do Departamento 1 (Sede)
 INSERT INTO company.project VALUES ('Reorganizacao Geral', 101, 'Belo Horizonte', 1);
@@ -449,7 +448,6 @@ INSERT INTO company.project VALUES ('Reducao de Custos', 901, 'Curitiba', 9);
 -- Projetos do Departamento 10 (Suporte Tecnico)
 INSERT INTO company.project VALUES ('Autoatendimento IA', 1001, 'Sao Paulo', 10);
 
-
 -- Inserindo dados na tabela works_on
 -- -- Alocando funcionários ao Projeto 101 (Depto 1 - Reorganização Geral)
 INSERT INTO company.works_on VALUES ('111222333', 101, 1, 10.5); -- Ricardo
@@ -479,8 +477,6 @@ INSERT INTO company.works_on VALUES ('987654321', 101, 1, 10.0); -- No Projeto 1
 INSERT INTO company.works_on VALUES ('741852963', 101, 1, 15.0);
 
 *********************
-
-
 select * from company.employee;
 select * from company.department d;
 select * from company.dependent d;
@@ -490,15 +486,12 @@ select * from company.works_on w;
 -- Analisando o gerente e seu d	epartamento
 SELECT d.dname, e.ssn, e.fname, e.lname from company.employee e , department d where (e.ssn = d.mgr_ssn);
 
-
 -- Analisando dependentes de empregados
 SELECT e.fname, d.dependent_name, d.relationship  from company.employee e, dependent d where (d.essn = e.ssn);
-
 
 -- Analisando uma pessoa pelo nome
 SELECT b_date, address from company.employee e
 	where fname = 'Jhon' and minit ='B' and lname = 'Smith';
-
 
 -- Analisando um departamento especifico
 SELECT * from company.department d 
@@ -507,8 +500,209 @@ SELECT * from company.department d
 SELECT e.fname, e.lname, e.address from company.employee e, department d 
 	where d.dname = 'Vendas' and (d.dnumber = e.dno);
 
-
-
 SELECT p.pname, w.essn, e.fname, w.hours from company.project p, company.works_on w, company.employee e
 	where (p.pnumber = w.pno) and (w.essn = e.ssn);
+
+
+-- Concatenando 2 colunas de adiconando outro nome na coluna
+SELECT 
+    fname, 
+    minit, 
+    lname || ', ' || state AS completname 
+FROM company.employee;
+
+-- Schema Company
+-- Exemplo de calculo no select - Schema Company
+select fname, lname, salary, salary * 0.011 from employee;
+select fname, lname, salary, salary * 0.011  as INSS from employee;
+select fname, lname, salary, round(salary * 0.011,2) from employee;
+
+
+-- Schema Company
+-- Exemplo de alteracao em colunas com condicional
+select *
+	from employee e , works_on w, project p 
+	where (e.ssn = w.essn and w.pno = p.pnumber);
+
+select concat(fname, ' ', lname) complet_name, p.pname, e.salary, e.salary * 1.1 as increased_salary
+	from employee e, works_on w, project p
+	where (e.ssn = w.essn) 
+	and (w.pno = p.pnumber)
+	and (p.pname = 'Reorganizacao Geral');
+	-- and (e.ssn = '111222333');
+
+
+
+select concat(fname, ' ', lname) complet_name, 
+	p.pname, 
+	e.salary as original_salary,
+	-- calculo do novo salario
+	round(e.salary * 1.10,2) as increased_salary,
+	-- calculo da diferenca salarial
+	round((e.salary * 1.10) - e.salary, 2) as diference_value,
+	-- Calculo da variacao em porcentagem
+	round((((e.salary * 1.10) - e.salary) / e.salary) * 100,2) || '%' as percentage_increase
+	
+	from company.employee e
+		join works_on w
+			on (e.ssn = w.essn)
+		join company.project p
+			on (w.pno = p.pnumber)
+		where (e.salary > 3000)
+		-- and (p.pname = 'Reorganizacao Geral');
+		-- and (e.ssn = '111222333');
+	
+select * from employee e;
+select * from works_on w;
+select * from project p;		
+
+
+***********************************************************************
+-- Fazendo analises dos dados no banco
+
+SELECT *
+FROM information_schema.columns
+WHERE table_name = 'dept_locations';
+
+select * from dept_locations dl;
+select * from department d;
+select * from employee e;
+select * from project p;
+select * from works_on wo;
+
+-- Recuperando informacoes dos departamentos presente em uma cidade
+select d.dname as Department_Name, d.mgr_ssn as Manager, e.address from department d, dept_locations dl, employee e
+	where d.dnumber = dl.dnumber and dl.dlocation  = 'Sao Paulo';
+
+-- Recuperando informacoes
+select d.dname as Department_Name, concat(e.fname, ' ', e.lname) as Manager_Name, d.mgr_ssn as Manager_Code, e.address from department d, dept_locations dl, employee e
+	where d.dnumber = dl.dnumber and dl.dlocation  = 'Sao Paulo'
+		and d.mgr_ssn = e.ssn;
+
+-- Recuperando dados referentes aos gerentes e projetos
+select  p.pnumber as Project_Number,
+		p.pname as Project_Name,
+		d.dname as Department,
+		p.dnum as Department_Number,
+		concat(fname, ' ',lname) as Manager, 
+		e.b_date,
+		address as Address
+	from department d,
+		project p,
+		employee e
+	where d.dnumber = p.dnum 
+		and p.plocation  = 'Sao Paulo'
+		and mgr_ssn = e.ssn;
+
+-- operando analises com LIKE e BETWEEN	
+-- Like
+select concat(e.fname, ' ', e.lname) as Complete_Name,
+		d.dname as Department_Name,
+		d.dnumber as Department_Number,
+		e.address 
+	from employee e,
+		department d
+	where (e.dno = d.dnumber)
+		and  (e.address ilike '%Rua%');
+
+
+-- Between (Veja a diferenca)
+select fname, lname from employee e
+	where (e.salary > 3000 and e.salary < 4000);
+
+select fname, lname from employee e
+	where e.salary between 3000 and 4000;
+
+-- Union / Intersection / Except
+
+-- Union
+select distinct p.pnumber, p.pname
+	from project p, department d, employee e
+		where p.dnum = d.dnumber 	
+			and d.mgr_ssn = e.ssn 
+			and e.lname = 'Oliveira'
+UNION 
+
+select distinct p.pnumber, p.pname 
+	from project p, works_on w, employee e
+	where p.pnumber = w.pno 
+		and w.essn = e.ssn
+		and e.lname = 'Oliveira';
+
+
+
+*************************************************************************
+
+-- Order By e Group By
+
+
+select * from dept_locations dl;
+select * from department d;
+select * from employee e;
+select * from project p;
+select * from works_on wo;
+
+select fname, lname, city, state
+	from employee
+	order by state desc;
+
+select city, state, count(*) as registros
+	from employee
+	group by state, city
+	order by state desc;
+
+-------------------------------------------------------------
+-- Case When
+
+-- Usando Case when para criar atributos
+select fname, lname, city, state, 
+case
+	when (salary < 1500) then 'Min Salary'
+	when (salary >= 1500 and salary < 3000) then 'Mid Salary'
+	when (salary >= 3000 and salary < 4500) then 'Senior Salary'
+	when (salary >= 4500) then 'High Salary'
+end as Salary_Range
+	from employee
+	order by city asc, state desc;
+
+-- agora vamos somar as pessoas dessas faixas salariais
+select -- fname, lname, city, 
+	state, 
+case
+	when (salary < 1500) then 'Min Salary'
+	when (salary >= 1500 and salary < 3000) then 'Mid Salary'
+	when (salary >= 3000 and salary < 4500) then 'Senior Salary'
+	when (salary >= 4500) then 'High Salary'
+end as Salary_Range,
+count(*) as total_por_faixa
+	from employee
+	group by salary_range, state
+	order by state asc, salary_range desc, total_por_faixa desc;
+
+-- analisando a soma de salarios por atributos definidos em colunas ao inves do campo, como no modelo acima
+select state,
+	SUM(case when salary >= 3000 then salary else 0 end) as Senior_payrol,
+	SUM(case when salary < 3000 then salary else 0 end) as Junior_payrol
+from employee 
+group by state 
+order by state asc;
+
+-- Analisando os salarios e quebrando por pessoa(fname)
+-- ** Podemos ver o total de SP = 12700, e a soma do senior payrol de Alice, Beatriz e Jhon
+select fname, state,
+	SUM(case when salary >= 3000 then salary else 0 end) as Senior_payrol,
+	SUM(case when salary < 3000 then salary else 0 end) as Junior_payrol
+from employee 
+group by fname,state 
+order by fname, state asc;
+
+
+
+
+
+
+
+
+
+
 
