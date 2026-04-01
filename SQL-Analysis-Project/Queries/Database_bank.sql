@@ -1,0 +1,1 @@
+-- inserir as queries utilizadas neste banco
