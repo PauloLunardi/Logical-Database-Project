@@ -1,0 +1,28 @@
+
+Comandos DDL
+
+	Aqui estão os mais usados, que inclusive aplicamos nos seus exemplos anteriores:
+	
+		1. CREATE 
+			Usado para criar novos objetos do zero.
+				CREATE TABLE: Cria suas tabelas (como a employee).
+				CREATE SCHEMA: Cria o "container" (como o company).
+				CREATE TYPE: Cria tipos personalizados (como o seu genders_type).
+				CREATE INDEX: Cria índices para acelerar as buscas. 
+
+		2. ALTER
+			Usado para modificar a estrutura de um objeto que já existe sem precisar deletá-lo. 
+				ADD COLUMN: Adiciona uma nova coluna.
+				ADD CONSTRAINT: Adiciona chaves estrangeiras ou regras (como o seu CHECK (age < 22)).
+				RENAME TO: Muda o nome de uma tabela ou coluna.
+				ALTER COLUMN ... SET NOT NULL: Muda as propriedades de uma coluna. 
+
+		3. DROP
+			Usado para excluir permanentemente um objeto e toda a sua estrutura. 
+				DROP TABLE: Apaga a tabela inteira (Cuidado: isso apaga os dados também!).
+				DROP SCHEMA: Apaga o esquema (geralmente usado com CASCADE).
+				DROP TYPE: Remove um tipo customizado. 
+
+		4. TRUNCATE
+			Embora pareça um comando de dados, ele é DDL porque lida com a estrutura de armazenamento. 
+				TRUNCATE TABLE: Esvazia a tabela instantaneamente, removendo todas as linhas de uma vez, mas mantém a estrutura intacta para novos inserts. É muito mais rápido que o DELETE. 
