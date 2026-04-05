@@ -1,6 +1,8 @@
 -- *********************************************************************************************
+-- Estou utilizando o postgreSQL ao invés do MySQL.
+
 -- Criando os tipos 
--- 1 Criando os tipos ENUM primeiro (boa prática para evitar erros de dependência)
+-- Criando os tipos ENUM primeiro (boa prática para evitar erros de dependência)
 CREATE TYPE category_type AS ENUM ('eletro', 'vestimenta', 'brinquedos', 'alimentos', 'moveis');
 CREATE TYPE status_type AS ENUM ('Cancelado', 'Confirmado', 'Em processamento');
 CREATE TYPE payment_type AS ENUM ('Boleto', 'Credito', 'Debito', 'PIX');
@@ -9,7 +11,8 @@ CREATE TYPE location_type AS ENUM ('CD', 'Loja', 'Hub');
 
 -- *********************************************************************************************
 -- Criando as tabelas
--- 2 Tabela Cliente
+
+-- Tabela Cliente
 CREATE TABLE client (
     id_client int GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     fname varchar(15) NOT NULL, 
@@ -24,7 +27,7 @@ CREATE TABLE client (
     CONSTRAINT chk_cpf_format CHECK (cpf ~ '^[0-9]{11}$')
 );
 
--- 3 Tabela Produto
+-- Tabela Produto
 CREATE TABLE product (
     id_product int GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     product_name varchar(30) NOT NULL UNIQUE,
@@ -34,7 +37,7 @@ CREATE TABLE product (
     size varchar(10)
 );
 
--- 4 Tabela Pagamento (Gerado na hora, vinculado ao cliente)
+-- Tabela Pagamento
 CREATE TABLE payment (
     id_client int NOT NULL,
     id_payment int GENERATED ALWAYS AS IDENTITY,
@@ -45,7 +48,7 @@ CREATE TABLE payment (
     -- se o cliente for excluido os pagamentos tbm serao
 );
 
--- 5 Tabela Pedido (Purchase Order)
+-- Tabela Pedido
 CREATE TABLE purchase_order (
     id_order int GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     id_client int NOT NULL,
@@ -57,7 +60,7 @@ CREATE TABLE purchase_order (
     -- qnd cliente apagado, os pedidos serao deletados
 );
 
--- 6 Tabela Fornecedor (supplier)
+-- Tabela Fornecedor
 CREATE TABLE supplier (
     id_supplier int GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     social_name varchar(255) NOT NULL,
@@ -71,7 +74,7 @@ CREATE TABLE supplier (
     CONSTRAINT chk_cnpj_supplier CHECK (cnpj_supplier ~ '^[0-9]{14}$')
 );
 
--- 7 Tabela Localizacao do estoque (storage_location)
+-- Tabela Localizacao do estoque
 CREATE TABLE storage_location(
     id_location int GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     storage_name varchar(50) NOT NULL,
@@ -83,7 +86,7 @@ CREATE TABLE storage_location(
     CONSTRAINT unique_storage_location UNIQUE (storage_name, city, state),
 );
 
--- 8 Tabela produto em estoque (storage)
+-- Tabela produto em estoque
 CREATE TABLE product_storage(
     id_product_storage int GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     id_product int NOT NULL,
@@ -95,7 +98,7 @@ CREATE TABLE product_storage(
     CONSTRAINT chk_product_storage CHECK (quantity >= 0)
 );
 
--- 9 Tabela vendedor (seller)
+-- Tabela vendedor
 CREATE TABLE seller(
     id_seller int GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     seller_social_name varchar(255) NOT NULL,
@@ -118,7 +121,7 @@ CREATE TABLE seller(
     CONSTRAINT chk_cnpj_seller_format CHECK (cnpj_seller ~ '^[0-9]{14}$')
 );
 
--- 10. Tabela vendedor do produto (product_seller)
+-- Tabela vendedor do produto
 CREATE TABLE product_seller(
     id_seller int NOT NULL,
     id_product int NOT NULL,
@@ -129,7 +132,7 @@ CREATE TABLE product_seller(
     CONSTRAINT chk_product_seller_quantity CHECK (prod_quantity > 0)
 );
 
--- 11. Tabela Ordem Produto  (Produtos na Ordem de Compra)
+-- Tabela Produtos na Ordem de Compra
 CREATE TABLE product_order(
     id_product int NOT NULL,
     id_order int NOT NULL,
@@ -142,7 +145,7 @@ CREATE TABLE product_order(
     CONSTRAINT chk_order_quantity CHECK (po_quantity > 0)
 );
 
--- 12. Tabela fornecedor de Produto  (product_supplier)
+-- Tabela fornecedor de Produto
 CREATE TABLE product_supplier(
     id_ps_supplier int NOT NULL,
     id_ps_product int NOT NULL,
@@ -155,7 +158,8 @@ CREATE TABLE product_supplier(
 
 -- *********************************************************************************************
 -- Criando os insert dos dados
--- 13 Insert tabela client
+
+-- Insert tabela client
 INSERT INTO client (fname, minit, lname, cpf, address_city, address_state) VALUES
 ('Joao','A','Silva','11111111111','SP','SP'),
 ('Maria','B','Souza','22222222222','RJ','RJ'),
@@ -168,7 +172,7 @@ INSERT INTO client (fname, minit, lname, cpf, address_city, address_state) VALUE
 ('Bruna','I','Ribeiro','99999999999','Recife','PE'),
 ('Diego','J','Martins','10101010101','Goiania','GO');
 
--- 14 Insert tabela product
+-- Insert tabela product
 INSERT INTO product (product_name, category, avaliacao) VALUES
 ('TV','eletro',4.5),
 ('Camiseta','vestimenta',4.2),
@@ -181,7 +185,7 @@ INSERT INTO product (product_name, category, avaliacao) VALUES
 ('Feijao','alimentos',4.6),
 ('Mesa','moveis',4.3);
 
--- 15 Insert tabela suplier
+-- Insert tabela suplier
 INSERT INTO supplier (social_name, cnpj_supplier, contact_supplier) VALUES
 ('Fornecedor A','11111111000101','11999999991'),
 ('Fornecedor B','22222222000102','11999999992'),
@@ -194,7 +198,7 @@ INSERT INTO supplier (social_name, cnpj_supplier, contact_supplier) VALUES
 ('Fornecedor I','99999999000109','11999999999'),
 ('Fornecedor J','10101010000100','11999999990');
 
--- 16 Insert tabela storage_location
+-- Insert tabela storage_location
 INSERT INTO storage_location (storage_name, storage_type, city, state) VALUES
 ('CD SP','CD','SP','SP'),
 ('CD RJ','CD','RJ','RJ'),
@@ -207,7 +211,7 @@ INSERT INTO storage_location (storage_name, storage_type, city, state) VALUES
 ('CD PE','CD','Recife','PE'),
 ('Loja GO','Loja','Goiania','GO');
 
--- 17 Insert tabela seller
+-- Insert tabela seller
 INSERT INTO seller (seller_social_name, cpf_seller, contact_seller, seller_location_street, seller_location_number, seller_location_city, seller_location_state) VALUES
 ('Vendedor 1','11111111111','11911111111','Rua A','10','SP','SP'),
 ('Vendedor 2','22222222222','11922222222','Rua B','20','RJ','RJ'),
@@ -220,32 +224,32 @@ INSERT INTO seller (seller_social_name, cpf_seller, contact_seller, seller_locat
 ('Vendedor 9','99999999999','11999999999','Rua I','90','Recife','PE'),
 ('Vendedor 10','10101010101','11910101010','Rua J','100','Goiania','GO');
 
--- 18 Insert purchase_order
+-- Insert purchase_order
 INSERT INTO purchase_order (id_client, order_description) VALUES
 (1,'Pedido 1'),(2,'Pedido 2'),(3,'Pedido 3'),(4,'Pedido 4'),(5,'Pedido 5'),
 (6,'Pedido 6'),(7,'Pedido 7'),(8,'Pedido 8'),(9,'Pedido 9'),(10,'Pedido 10');
 
--- 19 Insert tabela payment
+-- Insert tabela payment
 INSERT INTO payment (id_client, type_payment, limit_available) VALUES
 (1,'Credito',1000),(2,'Debito',500),(3,'PIX',0),(4,'Boleto',0),(5,'Credito',2000),
 (6,'PIX',0),(7,'Debito',800),(8,'Credito',1500),(9,'Boleto',0),(10,'PIX',0);
 
--- 19 Insert tabela product_storage
+-- Insert tabela product_storage
 INSERT INTO product_storage (id_product, id_location, quantity) VALUES
 (1,1,10),(2,2,20),(3,3,15),(4,4,50),(5,5,5),
 (6,6,8),(7,7,30),(8,8,12),(9,9,40),(10,10,6);
 
--- 19 Insert tabela product_seller
+-- Insert tabela product_seller
 INSERT INTO product_seller (id_seller, id_product, prod_quantity) VALUES
 (1,1,5),(2,2,10),(3,3,7),(4,4,20),(5,5,2),
 (6,6,3),(7,7,15),(8,8,6),(9,9,25),(10,10,4);
 
--- 19 Insert tabela product_order
+-- Insert tabela product_order
 INSERT INTO product_order (id_product, id_order, po_quantity, price) VALUES
 (1,1,1,1000),(2,2,2,50),(3,3,1,80),(4,4,5,20),(5,5,1,2000),
 (6,6,1,3000),(7,7,2,120),(8,8,1,90),(9,9,3,15),(10,10,1,500);
 
--- 19 Insert tabela product_supplier
+-- Insert tabela product_supplier
 INSERT INTO product_supplier (id_ps_supplier, id_ps_product, ps_quantity) VALUES
 (1,1,100),(2,2,200),(3,3,150),(4,4,500),(5,5,50),
 (6,6,80),(7,7,300),(8,8,120),(9,9,400),(10,10,60);
